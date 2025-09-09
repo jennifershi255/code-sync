@@ -4,6 +4,7 @@ class Solution(object):
         :type s: str
         :rtype: int
         """
+        # Remember for DYNAMIC SLIDING WINDOW problems to set right pointer to increment in the for loop
         
         dups = set()
         left = 0
