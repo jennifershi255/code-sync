@@ -1,36 +1,43 @@
 class Twitter:
 
     def __init__(self):
+        self.tweets = defaultdict(list) # stores {userId : [time, tweetId]}
+        self.following = defaultdict(list) # stores {userId : [followingIds]}
         self.time = 0
-        self.twitter = defaultdict(lambda : [[],set()]) # stores {userID : [[newsFeed], [followers]]}
 
     def postTweet(self, userId: int, tweetId: int) -> None:
-        self.twitter[userId][0].append((self.time, tweetId))
-        self.time += 1
+        self.tweets[userId].append([self.time, tweetId])
+        self.time -= 1
 
     def getNewsFeed(self, userId: int) -> List[int]:
+        following = self.following[userId]
+        feed = []
         res = []
-        tweets_to_consider = []
-        users = self.twitter[userId][1].copy()
-        users.add(userId)
+        num = 10
 
-        for u in users:
-            tweets_to_consider.extend(self.twitter[u][0][-10:])  # last 10 per user
-        # sort descending by timestamp
-        tweets_to_consider.sort(reverse=True)
-    
-        # sort for most to least recent
-        for t in tweets_to_consider[:10]:
-            res.append(t[1])
+        for k,v in self.tweets.items():
+            if k in following or k == userId:
+                for i in v:
+                    feed.append(i)
 
+        heapq.heapify(feed)
+        
+        while feed and num > 0:
+            time, val = heapq.heappop(feed)
+            res.append(val)
+            num -= 1
+        
         return res
 
     def follow(self, followerId: int, followeeId: int) -> None:
-        if followerId != followeeId:
-            self.twitter[followerId][1].add(followeeId)
+        if followeeId not in self.following[followerId]:
+            self.following[followerId].append(followeeId)
 
     def unfollow(self, followerId: int, followeeId: int) -> None:
-        self.twitter[followerId][1].discard(followeeId)
+        if followeeId in self.following[followerId]:
+            self.following[followerId].remove(followeeId)
+        
+
 
 # Your Twitter object will be instantiated and called as such:
 # obj = Twitter()
